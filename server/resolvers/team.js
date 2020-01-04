@@ -1,13 +1,29 @@
+import _ from 'lodash';
+import { requiresAuth } from '../permission';
+
 export default {
+  Query: {
+    allTeams: requiresAuth.createResolver(
+      (parent, args, { models, user }) => models.Team.findAll({ where: { owner: user.id } }),
+    ),
+  },
   Mutation: {
-    createTeam: async (parent, args, { models, user }) => {
+    createTeam: requiresAuth.createResolver(async (parent, args, { models, user }) => {
       try {
-        await models.Team.create({ ...args, owner: user.id });
-        return true;
+        const team = await models.Team.create({ ...args, owner: user.id });
+        await models.Channel.create({ name: 'general', public: true, teamId: team.id });
+
+        return {
+          ok: true,
+          team,
+        };
       } catch (error) {
         console.log(error);
-        return false;
+        return {
+          ok: false,
+          errors: error.errors.map((x) => _.pick(x, ['path', 'message'])),
+        };
       }
-    },
+    }),
   },
 };

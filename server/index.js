@@ -1,30 +1,67 @@
 import express from 'express';
-// import bodyParser from 'body-parser';
 import { ApolloServer } from 'apollo-server-express';
-// import { mergeSchemas } from 'graphql-tools';
+import jwt from 'jsonwebtoken';
 
-// import typeDefs from './schema';
+import { refreshTokens } from './auth';
 import typeDefs from './schemas';
 import resolvers from './resolvers';
 import models from './models';
 
+const SECRET = 'SECRET';
 const PORT = 8080;
 const app = express();
 
-// const schema = makeExecutableSchema({
-//   typeDefs,
-//   resolvers,
-// });
+const validateToken = async (token, refreshToken) => {
+  if (token) {
+    try {
+      const { user } = jwt.verify(token, SECRET);
+      return {
+        user,
+      };
+    } catch (err) {
+      const {
+        user,
+        token: newToken,
+        refreshToken: newRefreshToken,
+      } = await refreshTokens(token, refreshToken, models, SECRET);
+
+      return {
+        user,
+        token: newToken,
+        refreshToken: newRefreshToken,
+      };
+    }
+  }
+
+  return {};
+};
 
 const server = new ApolloServer({
   typeDefs,
   resolvers,
-  context: () => ({
-    models,
-    user: {
-      id: 1,
-    },
-  }),
+  context: async ({ req, res }) => {
+    const token = req.headers['x-token'] || '';
+    const refreshToken = req.headers['x-refresh-token'] || '';
+
+    const {
+      user,
+      token: newToken,
+      refreshToken: newRefreshToken,
+    } = await validateToken(token, refreshToken);
+
+    if (newToken && newRefreshToken) {
+      console.log('INSIDE');
+      res.set('Access-Control-Expose-Headers', 'x-token, x-refresh-token');
+      res.set('x-token', newToken);
+      res.set('x-refresh-token', newRefreshToken);
+    }
+
+    return {
+      models,
+      user,
+      SECRET,
+    };
+  },
 });
 server.applyMiddleware({ app });
 
@@ -43,7 +80,3 @@ models.sequelize
   .catch((error) => {
     console.log('Database error:', error);
   });
-
-// app.use('/graphql', bodyParser.json(), graphqlExpress({ schema }));
-// app.use('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }));
-// app.listen(PORT);

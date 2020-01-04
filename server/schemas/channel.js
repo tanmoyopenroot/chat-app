@@ -5,11 +5,19 @@ export default gql`
     id: Int!
     name: String!
     public: Boolean!
-    messages: [Message!]!
-    users: [User!]!
+  }
+
+  type CreateChannelResponse {
+    ok: Boolean!
+    channel: Channel!
+    errors: [Error!]
+  }
+
+  type Query {
+    channelsByTeam(teamId: Int!): [Channel!]!
   }
 
   type Mutation {
-    createChannel(teamId: Int!, name: String!, public: Boolean = false): Boolean!
+    createChannel(teamId: Int!, name: String!, public: Boolean = false): CreateChannelResponse!
   }
 `;

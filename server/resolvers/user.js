@@ -1,5 +1,5 @@
-import bcrypt from 'bcrypt';
 import _ from 'lodash';
+import { tryLogin } from '../auth';
 
 export default {
   Query: {
@@ -9,12 +9,15 @@ export default {
     allUsers: (parent, args, { models }) => models.User.findAll(),
   },
   Mutation: {
-    register: async (parent, { password, ...othersArgs }, { models }) => {
+    login: (parent, { email, password }, { models, SECRET }) => tryLogin(
+      email,
+      password,
+      models,
+      SECRET,
+    ),
+    register: async (parent, args, { models }) => {
       try {
-        const hashedPassword = password
-          ? await bcrypt.hash(password, 12)
-          : '';
-        const user = await models.User.create({ password: hashedPassword, ...othersArgs });
+        const user = await models.User.create(args);
 
         return {
           ok: true,
@@ -23,7 +26,7 @@ export default {
       } catch (error) {
         return {
           ok: false,
-          errors: error.errors.map(x => _.pick(x, ['path', 'message'])),
+          errors: error.errors.map((x) => _.pick(x, ['path', 'message'])),
         };
       }
     },
