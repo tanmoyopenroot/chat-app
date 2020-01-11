@@ -5,36 +5,36 @@ import {
   useParams,
 } from 'react-router-dom';
 import {
-  Button,
-  Modal,
   Form,
+  Modal,
   Input,
+  Button,
   Message,
 } from 'semantic-ui-react';
-import { CREATE_CHANNEL } from '../../../graphql/mutations/Channel/createChannel';
+import { ADD_TEAM_MEMEBER } from '../../../graphql/mutations/Team/invitePeople';
 
-const CreateChannel = (props) => {
-  const { open, onClose, onCreate } = props;
-  const [name, setName] = useState('');
+const InvitePeople = (props) => {
+  const { open, onClose } = props;
+  const [email, setEmail] = useState('');
   const [errors, setErrors] = useState({});
   const history = useHistory();
   const { teamId } = useParams();
-  const [createChannel] = useMutation(CREATE_CHANNEL);
+  const [addTeamMember] = useMutation(ADD_TEAM_MEMEBER);
 
   const onButtonClick = async () => {
     setErrors({});
 
     try {
-      const response = await createChannel({
+      const response = await addTeamMember({
         variables: {
-          name,
+          email,
           teamId: parseInt(teamId, 10),
         },
       });
 
       console.log(response);
 
-      const { ok, errors: responseErrors, channel } = response.data.createChannel;
+      const { ok, errors: responseErrors } = response.data.addTeamMember;
 
       if (!ok) {
         const errObj = {};
@@ -46,9 +46,6 @@ const CreateChannel = (props) => {
         setErrors(errObj);
       } else {
         onClose();
-        onCreate();
-
-        history.push(`/teams/${teamId}/${channel.id}`);
       }
     } catch (err) {
       console.log(err);
@@ -62,18 +59,18 @@ const CreateChannel = (props) => {
       onClose={onClose}
     >
       <Modal.Header>
-        Create a Channel
+        Invite People
       </Modal.Header>
       <Modal.Content>
         <Modal.Description>
           <Form>
-            <Form.Field error={!!errors.login}>
+            <Form.Field error={!!errors.email}>
               <Input
                 fluid
                 type="text"
-                value={name}
-                onChange={(event) => setName(event.target.value)}
-                placeholder="Team Name"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                placeholder="email"
               />
             </Form.Field>
           </Form>
@@ -107,4 +104,4 @@ const CreateChannel = (props) => {
   );
 };
 
-export default CreateChannel;
+export default InvitePeople;

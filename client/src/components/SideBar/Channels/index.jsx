@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import gql from 'graphql-tag';
 import { useQuery } from '@apollo/react-hooks';
 import {
   Link,
@@ -13,19 +12,13 @@ import {
   Icon,
 } from 'semantic-ui-react';
 import CreateChannel from '../CreateChannel';
-
-const CHANNEL_BY_TEAM = gql`
-  query($teamId: Int!) {
-    channelsByTeam(teamId: $teamId) {
-      id,
-      name
-    }
-  }
-`;
+import InvitePeople from '../InvitePeople';
+import CHANNEL_BY_TEAM from '../../../graphql/queries/channels/channelsByTeam';
 
 const Channels = () => {
   const { teamId } = useParams();
   const [showCreateChannel, setShowCreateChannel] = useState(false);
+  const [showInvitePeople, setShowInvitePeople] = useState(false);
   const {
     loading,
     data,
@@ -75,6 +68,18 @@ const Channels = () => {
       open={showCreateChannel}
       onClose={() => setShowCreateChannel(false)}
       onCreate={() => refetch()}
+    />,
+    <div key="invite-people-label">
+      Invite people
+      <Icon
+        name="plus circle"
+        onClick={() => setShowInvitePeople(true)}
+      />
+    </div>,
+    <InvitePeople
+      key="invite-people"
+      open={showInvitePeople}
+      onClose={() => setShowInvitePeople(false)}
     />,
   ];
 };

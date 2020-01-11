@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useMutation } from '@apollo/react-hooks';
-import gql from 'graphql-tag';
 import { useHistory } from 'react-router-dom';
 import {
   Form,
@@ -10,20 +9,7 @@ import {
   Button,
   Message,
 } from 'semantic-ui-react';
-
-const LOGIN_USER = gql`
-  mutation($email: String!, $password: String!) {
-    login(email: $email, password: $password) {
-      ok,
-      token,
-      refreshToken,
-      errors {
-        path,
-        message,
-      }
-    }
-  }
-`;
+import LOGIN_USER from '../../graphql/mutations/User/login';
 
 export default () => {
   const [email, setEmail] = useState('');

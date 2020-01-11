@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 
-export const CHANNEL_BY_TEAM = gql`
+const CHANNEL_BY_TEAM = gql`
   query($teamId: Int!) {
     channelsByTeam(teamId: $teamId) {
       id,

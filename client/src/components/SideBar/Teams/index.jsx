@@ -1,5 +1,4 @@
-import React from 'react';
-import gql from 'graphql-tag';
+import React, { useState } from 'react';
 import { useQuery } from '@apollo/react-hooks';
 import { Link } from 'react-router-dom';
 import {
@@ -7,22 +6,17 @@ import {
   Dimmer,
   Loader,
   Card,
+  Icon,
 } from 'semantic-ui-react';
-
-const ALL_TEAMS = gql`
-  {
-    allTeams {
-      id
-      name
-    }
-  }
-`;
+import CreateTeam from '../CreateTeam';
+import ALL_TEAMS from '../../../graphql/queries/Team/allTeams';
 
 const Teams = () => {
-  const { loading, data } = useQuery(ALL_TEAMS);
+  const { loading, data, refetch } = useQuery(ALL_TEAMS);
+  const [showCreateTeam, setShowCreateTeam] = useState(false);
 
-  return (
-    <Card>
+  return [
+    <Card key="teams">
       <Card.Content>
         <Card.Header>Teams</Card.Header>
       </Card.Content>
@@ -35,6 +29,12 @@ const Teams = () => {
               </Dimmer>
             ) : (
               <List>
+                <List.Item key="create-team-label">
+                  <Icon
+                    name="plus circle"
+                    onClick={() => setShowCreateTeam(true)}
+                  />
+                </List.Item>
                 {
                   data.allTeams.map(({ id, name }) => (
                     <List.Item key={id}>
@@ -48,8 +48,14 @@ const Teams = () => {
             )
         }
       </Card.Content>
-    </Card>
-  );
+    </Card>,
+    <CreateTeam
+      key="create-team"
+      open={showCreateTeam}
+      onClose={() => setShowCreateTeam(false)}
+      onCreate={() => refetch()}
+    />,
+  ];
 };
 
 export default Teams;

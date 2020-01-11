@@ -1,32 +1,17 @@
 import React, { useState } from 'react';
 import { useMutation } from '@apollo/react-hooks';
-import gql from 'graphql-tag';
 import { useHistory } from 'react-router-dom';
 import {
   Form,
-  Container,
-  Header,
   Input,
+  Modal,
   Button,
   Message,
 } from 'semantic-ui-react';
+import CREATE_TEAM from '../../../graphql/mutations/Team/createTeam';
 
-const CREATE_TEAM = gql`
-  mutation($name: String!) {
-    createTeam(name: $name) {
-      ok,
-      team {
-        id,
-      }
-      errors {
-        path,
-        message
-      }
-    }
-  }
-`;
-
-export default () => {
+const CreateTeam = (props) => {
+  const { open, onClose, onCreate } = props;
   const [name, setName] = useState('');
   const [errors, setErrors] = useState({});
   const history = useHistory();
@@ -55,6 +40,9 @@ export default () => {
 
         setErrors(errObj);
       } else {
+        onCreate();
+        onClose();
+
         history.push(`/teams/${team.id}`);
       }
     } catch (err) {
@@ -64,33 +52,54 @@ export default () => {
   };
 
   return (
-    <Container fluid text>
-      <Header as="h2">
+    <Modal
+      open={open}
+      onClose={onClose}
+    >
+      <Modal.Header>
         Create Team
-      </Header>
-      <Form>
-        <Form.Field error={!!errors.login}>
-          <Input
-            fluid
-            type="text"
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            placeholder="Team Name"
-          />
-        </Form.Field>
-        <Button onClick={onButtonClick}>
-          Submit
+      </Modal.Header>
+      <Modal.Content>
+        <Modal.Description>
+          <Form>
+            <Form.Field error={!!errors.login}>
+              <Input
+                fluid
+                type="text"
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                placeholder="Team Name"
+              />
+            </Form.Field>
+          </Form>
+          {
+            !!Object.keys(errors).length && (
+              <Message
+                error
+                header="There was some errors with your submission"
+                list={Object.values(errors)}
+              />
+            )
+          }
+        </Modal.Description>
+      </Modal.Content>
+      <Modal.Actions>
+        <Button
+          color="black"
+          onClick={onClose}
+        >
+          Close
         </Button>
-      </Form>
-      {
-        !!Object.keys(errors).length && (
-          <Message
-            error
-            header="There was some errors with your submission"
-            list={Object.values(errors)}
-          />
-        )
-      }
-    </Container>
+        <Button
+          positive
+          icon="checkmark"
+          labelPosition="right"
+          content="Create"
+          onClick={onButtonClick}
+        />
+      </Modal.Actions>
+    </Modal>
   );
 };
+
+export default CreateTeam;
