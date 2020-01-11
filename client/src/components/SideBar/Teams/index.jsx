@@ -44,6 +44,15 @@ const Teams = () => {
                     </List.Item>
                   ))
                 }
+                {
+                  data.invitedTeams.map(({ id, name }) => (
+                    <List.Item key={id}>
+                      <Link to={`/teams/${id}`}>
+                        {name}
+                      </Link>
+                    </List.Item>
+                  ))
+                }
               </List>
             )
         }

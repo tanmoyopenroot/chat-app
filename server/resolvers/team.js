@@ -4,7 +4,21 @@ import { requiresAuth } from '../permission';
 export default {
   Query: {
     allTeams: requiresAuth.createResolver(
-      (parent, args, { models, user }) => models.Team.findAll({ where: { owner: user.id } }),
+      (parent, args, { models, user }) => models.Team.findAll(
+        { where: { owner: user.id } },
+        { raw: true },
+      ),
+    ),
+    invitedTeams: requiresAuth.createResolver(
+      (parent, args, { models, user }) => models.Team.findAll(
+        {
+          include: [{
+            model: models.User,
+            where: { id: user.id },
+          }],
+        },
+        { raw: true },
+      ),
     ),
   },
   Mutation: {

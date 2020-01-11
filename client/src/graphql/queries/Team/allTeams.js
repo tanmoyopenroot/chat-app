@@ -6,6 +6,10 @@ const ALL_TEAMS = gql`
       id
       name
     }
+    invitedTeams {
+      id
+      name
+    }
   }
 `;
 
