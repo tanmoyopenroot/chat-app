@@ -1,4 +1,14 @@
 export default {
+  Query: {
+    messages: async (parent, { channelId }, { models }) => models.Message
+      .findAll(
+        {
+          order: [['createdAt', 'ASC']],
+          where: { channelId },
+        },
+        { raw: true },
+      ),
+  },
   Mutation: {
     createMessage: async (parent, args, { models, user }) => {
       try {

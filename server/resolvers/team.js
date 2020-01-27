@@ -10,15 +10,26 @@ export default {
       ),
     ),
     invitedTeams: requiresAuth.createResolver(
-      (parent, args, { models, user }) => models.Team.findAll(
+      (parent, args, { models, user }) => models.sequelize.query(
+        `
+          select * from teams
+          inner join members on id = team_id
+          where user_id = ?
+        `,
         {
-          include: [{
-            model: models.User,
-            where: { id: user.id },
-          }],
+          replacements: [user.id],
+          model: models.Team,
         },
-        { raw: true },
       ),
+      // models.Team.findAll(
+      //   {
+      //     include: [{
+      //       model: models.User,
+      //       where: { id: user.id },
+      //     }],
+      //   },
+      //   { raw: true },
+      // ),
     ),
   },
   Mutation: {

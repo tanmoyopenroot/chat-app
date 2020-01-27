@@ -50,7 +50,6 @@ const server = new ApolloServer({
     } = await validateToken(token, refreshToken);
 
     if (newToken && newRefreshToken) {
-      console.log('INSIDE');
       res.set('Access-Control-Expose-Headers', 'x-token, x-refresh-token');
       res.set('x-token', newToken);
       res.set('x-refresh-token', newRefreshToken);
@@ -68,6 +67,7 @@ server.applyMiddleware({ app });
 models.sequelize
   .sync()
   .then(() => {
+    // eslint-disable-next-line no-console
     console.log('Database connected');
     app.listen(
       { port: PORT },
@@ -78,5 +78,6 @@ models.sequelize
     );
   })
   .catch((error) => {
+    // eslint-disable-next-line no-console
     console.log('Database error:', error);
   });

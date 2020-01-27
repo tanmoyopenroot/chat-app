@@ -67,7 +67,7 @@ const CreateChannel = (props) => {
       <Modal.Content>
         <Modal.Description>
           <Form>
-            <Form.Field error={!!errors.login}>
+            <Form.Field error={!!errors.name}>
               <Input
                 fluid
                 type="text"
